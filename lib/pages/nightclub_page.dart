@@ -3,6 +3,8 @@ import "package:flutter/material.dart";
 import "package:google_fonts/google_fonts.dart";
 import "package:intl/intl.dart";
 import "package:cp1mobile/repositories/pessoa_repository.dart";
+import "package:cp1mobile/utils/cores.dart";
+import "package:cp1mobile/widgets/contador_lotacao.dart";
 
 //Capacidade máxima do camarote
 const int capacidadeMaxima = 67;
@@ -42,8 +44,8 @@ class _NightclubPageState extends State<NightclubPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF1A0526),
-        leading: Icon(Icons.nightlife, color: Color(0xFFFF2E9A)),
+        backgroundColor: Cores.roxoEscuro,
+        leading: Icon(Icons.nightlife, color: Cores.rosaNeon),
         title: Text(
           "Camarote VIP",
           style: GoogleFonts.bitcount(color: Colors.white, fontSize: 28),
@@ -55,38 +57,10 @@ class _NightclubPageState extends State<NightclubPage> {
           padding: EdgeInsets.all(16),
           child: Column(
             children: [
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Color(0xCC1A0526),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.people, color: Colors.white),
-                        SizedBox(width: 8),
-                        Flexible(
-                          child: Text(
-                            "Pessoas no ambiente: $pessoasNoAmbiente / $capacidadeMaxima",
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 4),
-                    Center(
-                      child: Text(
-                        isFull ? "Camarote lotado! Não é possível registrar uma nova entrada." : "Pode entrar",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: isFull ? Color(0xFFFF3B3B) : Color(0xFF39FF14)),
-                      ),
-                    ),
-                  ],
-                ),
+              ContadorLotacao(
+                pessoasNoAmbiente: pessoasNoAmbiente,
+                capacidade: capacidadeMaxima,
+                isFull: isFull,
               ),
               SizedBox(height: 16),
               TextField(
@@ -121,7 +95,7 @@ class _NightclubPageState extends State<NightclubPage> {
                   ElevatedButton(
                     onPressed: cadastrarPessoa,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFFB026FF),
+                      backgroundColor: Cores.roxoNeon,
                     ),
                     child: Icon(Icons.add, size: 30, color: Colors.white),
                   ),
