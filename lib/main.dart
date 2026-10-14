@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:cp1mobile/pages/nightclub_page.dart';
 
 void main(){
@@ -10,9 +11,22 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: NightclubPage(),
+      theme: ThemeData(
+        //Fundo do Scaffold transparente pra aparecer a imagem da balada
+        scaffoldBackgroundColor: Colors.transparent,
+        textTheme: GoogleFonts.poppinsTextTheme(),
+      ),
+      home: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/images/wallpaper.jpg"),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: NightclubPage(),
+      ),
     );
   }
 }

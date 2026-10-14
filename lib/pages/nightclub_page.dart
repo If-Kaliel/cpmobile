@@ -1,10 +1,11 @@
 import "package:cp1mobile/models/pessoa.dart";
 import "package:flutter/material.dart";
+import "package:google_fonts/google_fonts.dart";
 import "package:intl/intl.dart";
 import "package:cp1mobile/repositories/pessoa_repository.dart";
 
-//Regra do CP1: o camarote aguenta no máximo 64 pessoas
-const int capacidadeMaxima = 64;
+//Capacidade máxima do camarote
+const int capacidadeMaxima = 67;
 
 List<Pessoa> listPessoas = [];
 String? errorNome;
@@ -41,10 +42,11 @@ class _NightclubPageState extends State<NightclubPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Color(0xFF1A0526),
+        leading: Icon(Icons.nightlife, color: Color(0xFFFF2E9A)),
         title: Text(
           "Camarote VIP",
-          style: TextStyle(color: Colors.white),
+          style: GoogleFonts.bitcount(color: Colors.white, fontSize: 28),
         ),
         centerTitle: true,
       ),
@@ -53,13 +55,38 @@ class _NightclubPageState extends State<NightclubPage> {
           padding: EdgeInsets.all(16),
           child: Column(
             children: [
-              Text(
-                "Pessoas no ambiente: $pessoasNoAmbiente / $capacidadeMaxima",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              Text(
-                isFull ? "Camarote lotado! Não é possível registrar uma nova entrada." : "Pode entrar",
-                style: TextStyle(color: isFull ? Colors.red : Colors.green),
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Color(0xCC1A0526),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.people, color: Colors.white),
+                        SizedBox(width: 8),
+                        Flexible(
+                          child: Text(
+                            "Pessoas no ambiente: $pessoasNoAmbiente / $capacidadeMaxima",
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 4),
+                    Center(
+                      child: Text(
+                        isFull ? "Camarote lotado! Não é possível registrar uma nova entrada." : "Pode entrar",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: isFull ? Color(0xFFFF3B3B) : Color(0xFF39FF14)),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               SizedBox(height: 16),
               TextField(
@@ -69,6 +96,8 @@ class _NightclubPageState extends State<NightclubPage> {
                   hintText: "Ex: Maria Silva",
                   errorText: errorNome,
                   border: OutlineInputBorder(),
+                  filled: true,
+                  fillColor: Colors.white,
                 ),
               ),
               SizedBox(height: 8),
@@ -83,6 +112,8 @@ class _NightclubPageState extends State<NightclubPage> {
                         hintText: "Ex: 123456",
                         errorText: errorId,
                         border: OutlineInputBorder(),
+                        filled: true,
+                        fillColor: Colors.white,
                       ),
                     ),
                   ),
@@ -90,7 +121,7 @@ class _NightclubPageState extends State<NightclubPage> {
                   ElevatedButton(
                     onPressed: cadastrarPessoa,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepPurple,
+                      backgroundColor: Color(0xFFB026FF),
                     ),
                     child: Icon(Icons.add, size: 30, color: Colors.white),
                   ),
