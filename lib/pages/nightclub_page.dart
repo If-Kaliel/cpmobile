@@ -1,5 +1,6 @@
 import "package:cp1mobile/models/pessoa.dart";
 import "package:flutter/material.dart";
+import "package:intl/intl.dart";
 import "package:cp1mobile/repositories/pessoa_repository.dart";
 
 //Regra do CP1: o camarote aguenta no máximo 64 pessoas
@@ -118,8 +119,14 @@ class _NightclubPageState extends State<NightclubPage> {
                                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                                   ),
                                   Text("ID: ${pessoa.identificacao}"),
-                                  //TODO: formatar essa data com o intl
-                                  Text("Entrada: ${pessoa.dataEntrada}"),
+                                  Text(
+                                    "Entrada: ${DateFormat("dd/MM/yyyy 'às' HH:mm").format(pessoa.dataEntrada)}",
+                                  ),
+                                  //Só mostra a saída se a pessoa já saiu
+                                  if (!pessoa.noAmbiente)
+                                    Text(
+                                      "Saída: ${DateFormat("dd/MM/yyyy 'às' HH:mm").format(pessoa.dataSaida!)}",
+                                    ),
                                   Text("Situação: ${pessoa.situacao}"),
                                 ],
                               ),
