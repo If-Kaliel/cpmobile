@@ -10,6 +10,8 @@ import "package:cp1mobile/widgets/pessoa_item.dart";
 const int capacidadeMaxima = 67;
 
 List<Pessoa> listPessoas = [];
+Pessoa? deletedPessoa;
+int? deletedPessoaPos;
 String? errorNome;
 String? errorId;
 
@@ -120,6 +122,7 @@ class _NightclubPageState extends State<NightclubPage> {
                       PessoaItem(
                         pessoa: pessoa,
                         onSaida: () => registrarSaida(pessoa),
+                        onExcluir: () => excluirPessoa(pessoa),
                       ),
                   ],
                 ),
@@ -188,6 +191,7 @@ class _NightclubPageState extends State<NightclubPage> {
   Future<void> registrarSaida(Pessoa pessoa) async {
     //Regra 2: quem já saiu não pode registrar a saída de novo
     if (!pessoa.noAmbiente) {
+      mostrarFeedback("A saída de ${pessoa.nome} já foi registrada!");
       return;
     }
 
@@ -229,5 +233,46 @@ class _NightclubPageState extends State<NightclubPage> {
     pessoaRepository.saveListaPessoas(listPessoas);
 
     mostrarFeedback("Saída registrada com sucesso!");
+  }
+
+  void excluirPessoa(Pessoa pessoa) {
+    deletedPessoa = pessoa;
+    deletedPessoaPos = listPessoas.indexOf(pessoa);
+
+    setState(() {
+      listPessoas.remove(pessoa);
+    });
+    pessoaRepository.saveListaPessoas(listPessoas);
+
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("${pessoa.nome} foi removido(a) da lista."),
+        duration: Duration(seconds: 3),
+        action: SnackBarAction(
+          label: "Desfazer",
+          textColor: Cores.rosaNeon,
+          onPressed: () {
+            //Se a pessoa ainda estava dentro, não pode voltar se o camarote lotou
+            if (deletedPessoa!.noAmbiente && isFull) {
+              mostrarFeedback("Não é possível desfazer. Ambiente lotado!");
+              return;
+            }
+            //Também não pode voltar se alguém com o mesmo ID entrou nesse meio tempo
+            bool idRepetido = listPessoas.any(
+              (p) => p.identificacao == deletedPessoa!.identificacao && p.noAmbiente,
+            );
+            if (deletedPessoa!.noAmbiente && idRepetido) {
+              mostrarFeedback("Não é possível desfazer. Já existe alguém com essa identificação!");
+              return;
+            }
+            setState(() {
+              listPessoas.insert(deletedPessoaPos!, deletedPessoa!);
+            });
+            pessoaRepository.saveListaPessoas(listPessoas);
+          },
+        ),
+      ),
+    );
   }
 }
