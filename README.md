@@ -13,7 +13,7 @@ Aplicativo em Flutter para controlar quem entra e quem sai do camarote de uma ba
 
 ## Vídeo
 
-Link do vídeo demonstrando o app: _(adicionar aqui)_
+Link do vídeo demonstrando o app: (https://youtu.be/7qXWnB1Ez8U)
 
 ## Funcionalidades
 
