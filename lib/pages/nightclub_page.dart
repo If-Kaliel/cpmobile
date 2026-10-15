@@ -1,10 +1,10 @@
 import "package:cp1mobile/models/pessoa.dart";
 import "package:flutter/material.dart";
 import "package:google_fonts/google_fonts.dart";
-import "package:intl/intl.dart";
 import "package:cp1mobile/repositories/pessoa_repository.dart";
 import "package:cp1mobile/utils/cores.dart";
 import "package:cp1mobile/widgets/contador_lotacao.dart";
+import "package:cp1mobile/widgets/pessoa_item.dart";
 
 //Capacidade máxima do camarote
 const int capacidadeMaxima = 67;
@@ -33,6 +33,17 @@ class _NightclubPageState extends State<NightclubPage> {
         listPessoas = value;
       });
     });
+  }
+
+  void mostrarFeedback(String mensagem) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(mensagem),
+          duration: const Duration(seconds: 3),
+        ),
+      );
   }
 
   //Conta só quem ainda está dentro, quem já saiu não entra na conta
@@ -106,43 +117,9 @@ class _NightclubPageState extends State<NightclubPage> {
                 child: ListView(
                   children: [
                     for (Pessoa pessoa in listPessoas)
-                      Container(
-                        margin: EdgeInsets.symmetric(vertical: 2),
-                        padding: EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(6),
-                          color: Colors.grey[200],
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    pessoa.nome,
-                                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                                  ),
-                                  Text("ID: ${pessoa.identificacao}"),
-                                  Text(
-                                    "Entrada: ${DateFormat("dd/MM/yyyy 'às' HH:mm").format(pessoa.dataEntrada)}",
-                                  ),
-                                  //Só mostra a saída se a pessoa já saiu
-                                  if (!pessoa.noAmbiente)
-                                    Text(
-                                      "Saída: ${DateFormat("dd/MM/yyyy 'às' HH:mm").format(pessoa.dataSaida!)}",
-                                    ),
-                                  Text("Situação: ${pessoa.situacao}"),
-                                ],
-                              ),
-                            ),
-                            TextButton(
-                              //Se a pessoa já saiu o botão fica desabilitado
-                              onPressed: pessoa.noAmbiente ? () => registrarSaida(pessoa) : null,
-                              child: Text("Saída"),
-                            ),
-                          ],
-                        ),
+                      PessoaItem(
+                        pessoa: pessoa,
+                        onSaida: () => registrarSaida(pessoa),
                       ),
                   ],
                 ),
@@ -176,6 +153,7 @@ class _NightclubPageState extends State<NightclubPage> {
         errorNome = null;
         errorId = "Já tem uma pessoa com essa identificação no camarote";
       });
+      mostrarFeedback("Já existe uma pessoa com essa identificação no camarote!");
       return;
     }
 
@@ -185,15 +163,17 @@ class _NightclubPageState extends State<NightclubPage> {
         errorNome = null;
         errorId = null;
       });
+      mostrarFeedback("Não é possível realizar a entrada. Ambiente lotado!");
       return;
     }
 
+    Pessoa newPessoa = Pessoa(
+      nome: nome,
+      identificacao: identificacao,
+      dataEntrada: DateTime.now(),
+    );
+
     setState(() {
-      Pessoa newPessoa = Pessoa(
-        nome: nome,
-        identificacao: identificacao,
-        dataEntrada: DateTime.now(),
-      );
       listPessoas.add(newPessoa);
       errorNome = null;
       errorId = null;
@@ -201,16 +181,53 @@ class _NightclubPageState extends State<NightclubPage> {
     pessoaRepository.saveListaPessoas(listPessoas);
     nomeController.clear();
     idController.clear();
+
+    mostrarFeedback("Pessoa cadastrada com sucesso!");
   }
 
-  void registrarSaida(Pessoa pessoa) {
+  Future<void> registrarSaida(Pessoa pessoa) async {
     //Regra 2: quem já saiu não pode registrar a saída de novo
     if (!pessoa.noAmbiente) {
       return;
     }
+
+    final bool? confirmar = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text("Registrar saída?"),
+          content: Text("Deseja realmente registrar a saída de ${pessoa.nome}?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(false);
+              },
+              child: const Text("CANCELAR"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(true);
+              },
+              child: const Text("CONFIRMAR"),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmar != true || !mounted) {
+      return;
+    }
+
+    if (!pessoa.noAmbiente) {
+      return;
+    }
+
     setState(() {
       pessoa.dataSaida = DateTime.now();
     });
     pessoaRepository.saveListaPessoas(listPessoas);
+
+    mostrarFeedback("Saída registrada com sucesso!");
   }
 }
